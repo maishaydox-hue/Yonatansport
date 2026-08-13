@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יונתן מימון - נתוני ההתאחדות</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Open Sans", Arial, sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            color: #172554;
+            padding: 20px;
+        }
+        .container { max-width: 1180px; margin: 0 auto; }
+        header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+        }
+        h1 { color: #0c4a6e; font-size: 28px; margin-bottom: 6px; }
+        .subtitle { color: #64748b; font-size: 14px; line-height: 1.55; }
+        .main-link {
+            display: inline-block;
+            white-space: nowrap;
+            background: #0c4a6e;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; }
+        .panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+            border: 1px solid #e2e8f0;
+        }
+        .player { text-align: center; }
+        .avatar-photo {
+            width: 132px;
+            height: 168px;
+            border-radius: 18px;
+            margin: 0 auto 12px;
+            object-fit: cover;
+            border: 3px solid #facc15;
+            background: #dbeafe;
+        }
+        h2 { color: #0c4a6e; font-size: 22px; }
+        .meta-list { margin-top: 14px; text-align: right; }
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+        .meta-row span:first-child { color: #64748b; font-weight: 700; }
+        .meta-row span:last-child { color: #0c4a6e; font-weight: 700; }
+        select {
+            width: 100%;
+            margin-top: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 9px 10px;
+            font: inherit;
+            background: #f8fafc;
+        }
+        .weekly-link {
+            display: block;
+            margin-top: 14px;
+            text-align: center;
+            background: #facc15;
+            color: #172554;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        .summary-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+        .meta { color: #64748b; font-size: 12px; }
+        .metrics { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 12px; }
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .metric-label { color: #475569; font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+        .metric-value { color: #0c4a6e; font-size: 26px; font-weight: 900; direction: ltr; text-align: right; }
+        .section { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #cbd5e1; }
+        .section h3 { color: #0c4a6e; font-size: 17px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; font-weight: 800; background: #f8fafc; }
+        .roster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+        .roster-grid a { color: #0c4a6e; font-size: 13px; text-decoration: none; padding: 4px 0; }
+        .roster-grid a:hover { text-decoration: underline; }
+        .roster-grid a.current { font-weight: 900; color: #ca8a04; }
+        .empty {
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 34px;
+            text-align: center;
+            color: #64748b;
+            background: #f8fafc;
+        }
+        .error-box {
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        @media (max-width: 920px) {
+            body { padding: 12px; }
+            header { display: block; }
+            .main-link { margin-top: 14px; }
+            .layout { grid-template-columns: 1fr; }
+            .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .roster-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 540px) {
+            h1 { font-size: 23px; }
+            .metrics { grid-template-columns: 1fr; }
+            .roster-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>יונתן מימון - נתוני ההתאחדות</h1>
+                <p class="subtitle">נתונים רשמיים מאתר ההתאחדות לכדורגל בישראל: שערים, כרטיסים, משחקים והרכב הקבוצה.</p>
+            </div>
+            <a class="main-link" href="/yonatan-maimon.html">מסך העלאת נתונים שבועיים</a>
+        </header>
+
+        <div class="layout">
+            <aside class="panel player">
+                <img class="avatar-photo" id="photo" src="" alt="תמונת שחקן" style="display:none">
+                <h2 id="playerName">טוען...</h2>
+                <div class="meta-list" id="metaList"></div>
+                <select id="seasonSelect">
+                    <option value="">טוען עונות...</option>
+                </select>
+                <a class="weekly-link" href="/yonatan-maimon-weekly.html">➕ העלאת נתונים שבועיים</a>
+            </aside>
+
+            <main class="panel" id="main">
+                <div class="summary-head">
+                    <h2>מבט כולל - עונה נוכחית</h2>
+                    <div class="meta" id="fetchedMeta"></div>
+                </div>
+                <div id="content">טוען נתונים מההתאחדות...</div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_PLAYER_ID = '218770';
+        const content = document.getElementById('content');
+        const playerNameEl = document.getElementById('playerName');
+        const photoEl = document.getElementById('photo');
+        const metaListEl = document.getElementById('metaList');
+        const fetchedMetaEl = document.getElementById('fetchedMeta');
+        const seasonSelect = document.getElementById('seasonSelect');
+
+        function metaRow(label, value) {
+            const row = document.createElement('div');
+            row.className = 'meta-row';
+            row.innerHTML = '<span></span><span></span>';
+            row.children[0].textContent = label;
+            row.children[1].textContent = value || '—';
+            return row;
+        }
+
+        function renderTable(container, title, rows, headerLabels) {
+            if (!rows || !rows.length) return;
+            const section = document.createElement('div');
+            section.className = 'section';
+            const h3 = document.createElement('h3');
+            h3.textContent = title;
+            section.appendChild(h3);
+            const table = document.createElement('table');
+            if (headerLabels) {
+                const thead = document.createElement('thead');
+                const tr = document.createElement('tr');
+                headerLabels.forEach((label) => {
+                    const th = document.createElement('th');
+                    th.textContent = label;
+                    tr.appendChild(th);
+                });
+                thead.appendChild(tr);
+                table.appendChild(thead);
+            }
+            const tbody = document.createElement('tbody');
+            rows.forEach((cells) => {
+                const tr = document.createElement('tr');
+                cells.forEach((cellText) => {
+                    const td = document.createElement('td');
+                    td.textContent = cellText;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            section.appendChild(table);
+            container.appendChild(section);
+        }
+
+        function renderSeasonOptions(seasons) {
+            seasonSelect.innerHTML = '';
+            if (!seasons || !seasons.length) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'עונה נוכחית';
+                seasonSelect.appendChild(opt);
+                return;
+            }
+            seasons.forEach((s) => {
+                const opt = document.createElement('option');
+                opt.value = s.value;
+                opt.textContent = s.label;
+                if (s.selected) opt.selected = true;
+                seasonSelect.appendChild(opt);
+            });
+        }
+
+        async function loadPlayer(seasonId) {
+            content.innerHTML = 'טוען נתונים מההתאחדות...';
+            try {
+                const params = new URLSearchParams({ player_id: DEFAULT_PLAYER_ID });
+                if (seasonId) params.set('season_id', seasonId);
+                const res = await fetch('/api/player-info?' + params.toString());
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'שגיאה בשליפת נתונים');
+                render(data);
+            } catch (err) {
+                content.innerHTML = '';
+                const box = document.createElement('div');
+                box.className = 'error-box';
+                box.textContent = 'לא הצלחתי לטעון את נתוני ההתאחדות: ' + err.message;
+                content.appendChild(box);
+            }
+        }
+
+        function render(data) {
+            playerNameEl.textContent = data.name || 'יונתן מימון';
+            if (data.photo) {
+                photoEl.src = data.photo;
+                photoEl.style.display = 'block';
+            }
+            renderSeasonOptions(data.seasons);
+
+            metaListEl.innerHTML = '';
+            metaListEl.appendChild(metaRow('תאריך לידה', data.birthDate));
+            metaListEl.appendChild(metaRow('אזרחות', data.citizenship));
+            metaListEl.appendChild(metaRow('קבוצה', data.team));
+            metaListEl.appendChild(metaRow('ליגה', data.league));
+
+            fetchedMetaEl.textContent = data.fetchedAt
+                ? 'עודכן: ' + new Date(data.fetchedAt).toLocaleString('he-IL')
+                : '';
+
+            content.innerHTML = '';
+
+            const metricsGrid = document.createElement('div');
+            metricsGrid.className = 'metrics';
+            const cards = [
+                ['שערים בליגה', data.goals && data.goals.league],
+                ['שערים בגביע', data.goals && data.goals.cup],
+                ['סה"כ שערים', data.goals && data.goals.total],
+                ['סה"כ כרטיסים', data.cards && data.cards.total],
+            ];
+            cards.forEach(([label, value]) => {
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                card.innerHTML = '<div class="metric-label"></div><div class="metric-value"></div>';
+                card.querySelector('.metric-label').textContent = label;
+                card.querySelector('.metric-value').textContent = value === null || value === undefined ? '—' : value;
+                metricsGrid.appendChild(card);
+            });
+            content.appendChild(metricsGrid);
+
+            if (data.games && data.games.length) {
+                renderTable(content, 'משחקים בעונה', data.games);
+            }
+
+            if (data.roster && data.roster.length) {
+                const section = document.createElement('div');
+                section.className = 'section';
+                const h3 = document.createElement('h3');
+                h3.textContent = 'שחקני הקבוצה';
+                section.appendChild(h3);
+                const grid = document.createElement('div');
+                grid.className = 'roster-grid';
+                data.roster.forEach((p) => {
+                    const a = document.createElement('a');
+                    a.href = 'https://www.football.org.il/players/player/?player_id=' + p.playerId;
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    a.textContent = p.name;
+                    if (p.playerId === DEFAULT_PLAYER_ID) a.classList.add('current');
+                    grid.appendChild(a);
+                });
+                section.appendChild(grid);
+                content.appendChild(section);
+            }
+
+            if (!content.children.length) {
+                content.innerHTML = '<div class="empty">לא נמצאו נתונים להצגה מההתאחדות עבור העונה הזו.</div>';
+            }
+        }
+
+        seasonSelect.addEventListener('change', () => loadPlayer(seasonSelect.value));
+        loadPlayer('');
+    </script>
+</body>
+</html>
