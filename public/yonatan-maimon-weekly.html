@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>יונתן מימון - העלאת נתונים שבועיים</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Open Sans", Arial, sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            color: #172554;
+            padding: 20px;
+        }
+        .container { max-width: 1180px; margin: 0 auto; }
+        header {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+        }
+        h1 { color: #0c4a6e; font-size: 28px; margin-bottom: 6px; }
+        .subtitle { color: #64748b; font-size: 14px; line-height: 1.55; }
+        .main-link {
+            display: inline-block;
+            white-space: nowrap;
+            background: #0c4a6e;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .layout { display: grid; grid-template-columns: 340px 1fr; gap: 18px; }
+        .panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.10);
+            border: 1px solid #e2e8f0;
+        }
+        .player { text-align: center; }
+        .avatar {
+            width: 112px; height: 112px; border-radius: 24px; margin: 0 auto 12px;
+            display: grid; place-items: center;
+            background: linear-gradient(145deg, #dbeafe, #fef3c7);
+            border: 3px solid #facc15; font-size: 46px;
+        }
+        .number { color: #ca8a04; font-size: 34px; font-weight: 900; margin: 4px 0 12px; direction: ltr; }
+        .hint { color: #64748b; font-size: 12px; line-height: 1.55; }
+        .actions { display: grid; gap: 10px; margin-top: 18px; }
+        input[type="file"] { display: none; }
+        input, select {
+            width: 100%; border: 1px solid #cbd5e1; border-radius: 10px;
+            padding: 9px 10px; font: inherit;
+        }
+        button, .file-btn {
+            border: none; border-radius: 12px; padding: 12px 14px;
+            background: #0c4a6e; color: #ffffff; font-weight: 800;
+            cursor: pointer; text-align: center; font-size: 14px; font-family: inherit;
+        }
+        button.secondary, .file-btn.secondary { background: #e2e8f0; color: #0f172a; }
+        button.danger { background: #dc2626; }
+        button.small { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+        .summary-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+        h2 { color: #0c4a6e; font-size: 22px; }
+        .meta { color: #64748b; font-size: 12px; }
+        .metrics { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 12px; }
+        .metric-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; min-height: 126px; }
+        .metric-label { color: #475569; font-size: 13px; font-weight: 800; margin-bottom: 8px; }
+        .metric-value { color: #0c4a6e; font-size: 26px; font-weight: 900; direction: ltr; text-align: right; }
+        .metric-note { color: #64748b; font-size: 11px; line-height: 1.5; margin-top: 8px; }
+        .analysis-panel { margin-top: 18px; padding-top: 18px; border-top: 1px dashed #cbd5e1; }
+        .analysis-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+        .analysis-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 14px; padding: 14px; }
+        .analysis-card h3 { font-size: 15px; color: #0c4a6e; margin-bottom: 8px; }
+        .analysis-status {
+            display: inline-block; padding: 3px 8px; border-radius: 999px;
+            background: #e0f2fe; color: #075985; font-size: 12px; font-weight: 800; margin-bottom: 8px;
+        }
+        .analysis-card p, .recommendations li { color: #475569; font-size: 12px; line-height: 1.55; margin-top: 5px; }
+        .recommendations { margin-top: 14px; padding: 14px 20px; background: #fefce8; border: 1px solid #fde68a; border-radius: 14px; }
+        .empty {
+            border: 1px dashed #cbd5e1; border-radius: 14px; padding: 34px;
+            text-align: center; color: #64748b; background: #f8fafc;
+        }
+        .status-box {
+            margin-top: 14px; border-radius: 12px; padding: 12px;
+            background: #eff6ff; color: #1e40af; font-size: 13px; line-height: 1.55; text-align: right;
+        }
+        .manual-panel { margin-top: 16px; padding-top: 16px; border-top: 1px dashed #cbd5e1; }
+        .manual-grid { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin-top: 12px; }
+        .manual-grid label { display: grid; gap: 5px; color: #64748b; font-size: 11px; font-weight: 700; }
+        .manual-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .entries-panel { margin-top: 18px; padding-top: 18px; border-top: 1px dashed #cbd5e1; }
+        table.entries { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        table.entries th, table.entries td { padding: 8px 8px; text-align: right; border-bottom: 1px solid #f1f5f9; }
+        table.entries th { color: #64748b; font-weight: 800; background: #f8fafc; }
+        table.entries td.num { direction: ltr; text-align: right; }
+        table.entries .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+        .type-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800;
+        }
+        .type-badge.csv { background: #dbeafe; color: #1e40af; }
+        .type-badge.image { background: #fef3c7; color: #92400e; }
+        .type-badge.manual { background: #dcfce7; color: #166534; }
+        .toast {
+            position: fixed; left: 18px; bottom: 18px; background: #0f172a; color: white;
+            padding: 11px 14px; border-radius: 12px; opacity: 0; transform: translateY(8px);
+            transition: 0.2s ease; pointer-events: none; max-width: 360px; font-size: 13px;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        @media (max-width: 920px) {
+            body { padding: 12px; }
+            header { display: block; }
+            .main-link { margin-top: 14px; }
+            .layout { grid-template-columns: 1fr; }
+            .metrics, .manual-grid, .analysis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            table.entries { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+        @media (max-width: 540px) {
+            h1 { font-size: 23px; }
+            .metrics, .manual-grid, .analysis-grid { grid-template-columns: 1fr; }
+            .metric-value { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>יונתן מימון - סטטיסטיקה שבועית</h1>
+                <p class="subtitle">
+                    חלון נפרד להעלאת CSV או תמונה פעם בשבוע. המסך הראשי עם נתוני ההתאחדות נשאר נפרד ולא משתנה.
+                </p>
+            </div>
+            <a class="main-link" href="/index.html">חזרה למסך הראשי</a>
+        </header>
+
+        <div class="layout">
+            <aside class="panel player">
+                <div class="avatar">👤</div>
+                <h2>יונתן מימון</h2>
+                <div class="number">#12</div>
+                <p class="hint">
+                    העלה CSV עם עמודת Player שבה מופיע Maimon / מימון. מתוך הקובץ נשלפת רק שורת השחקן ומתווספת לסיכום המצטבר.
+                    תמונה תעבור OCR ותמלא את השדות לבדיקה. הנתונים יישמרו רק אחרי לחיצה על "הוסף נתונים לסיכום".
+                </p>
+                <div class="actions">
+                    <label class="file-btn" for="csvInput">העלאת CSV שבועי</label>
+                    <input id="csvInput" type="file" accept=".csv,text/csv">
+                    <label class="file-btn secondary" for="imageInput">העלאת תמונת סטטיסטיקה</label>
+                    <input id="imageInput" type="file" accept="image/*">
+                    <button id="deleteLatestBtn" class="secondary" type="button">מחק העלאה אחרונה</button>
+                    <button id="clearBtn" class="danger" type="button">נקה הכל</button>
+                </div>
+                <div class="status-box" id="statusBox">
+                    מוכן להעלאה. תמונה תישמר, וה-OCR ימלא את השדות לבדיקה לפני שמירה.
+                </div>
+            </aside>
+
+            <main class="panel">
+                <div class="summary-head">
+                    <h2>מבט כולל מצטבר</h2>
+                    <div class="meta" id="summaryMeta">טוען...</div>
+                </div>
+                <div id="summary"></div>
+
+                <section class="manual-panel">
+                    <h2 style="font-size:18px">הזנה ידנית מהטבלה</h2>
+                    <p class="hint">להשתמש בזה אם העלית תמונה, או אם ה-CSV לא זוהה. הערכים יתווספו לאותו מבט כולל.</p>
+                    <form id="manualForm">
+                        <div class="manual-grid">
+                            <label>Top Speed (km/h)<input name="topSpeed" placeholder="28.2"></label>
+                            <label>N°Sprint &gt;25<input name="sprints" placeholder="4"></label>
+                            <label>HID &gt;19.8<input name="hid" placeholder="513"></label>
+                            <label>Distance &gt;25<input name="veryFastRun" placeholder="47"></label>
+                            <label>Distance 20-25<input name="fastRun" placeholder="431"></label>
+                            <label>Distance/min<input name="distancePerMin" placeholder="106"></label>
+                            <label>Total Distance<input name="totalDistance" placeholder="11161"></label>
+                            <label>Time<input name="time" placeholder="01:45:23"></label>
+                        </div>
+                        <div class="manual-actions">
+                            <button type="submit">הוסף נתונים לסיכום</button>
+                            <button type="button" class="secondary" id="fillExample">מלא דוגמה של מימון</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="entries-panel">
+                    <h2 style="font-size:18px">ניהול העלאות</h2>
+                    <p class="hint">כל ההעלאות שנשמרו. אפשר לערוך ערכים או למחוק שורה בודדת.</p>
+                    <div id="entriesTableWrap"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+        const summaryEl = document.getElementById('summary');
+        const summaryMetaEl = document.getElementById('summaryMeta');
+        const toastEl = document.getElementById('toast');
+        const statusBox = document.getElementById('statusBox');
+        const entriesTableWrap = document.getElementById('entriesTableWrap');
+        let pendingImageEntryId = null;
+
+        function toast(message) {
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            clearTimeout(toastEl._timer);
+            toastEl._timer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+        }
+
+        function setStatus(message) {
+            statusBox.textContent = message;
+            toast(message);
+        }
+
+        async function api(path, options) {
+            const res = await fetch(path, options);
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'שגיאה בשרת');
+            return data;
+        }
+
+        function render(data) {
+            const summary = data.summary || { csvCount: 0, imageCount: 0, metrics: [] };
+            summaryMetaEl.textContent = summary.csvCount + ' קבצי CSV · ' + summary.imageCount + ' תמונות';
+            summaryEl.innerHTML = '';
+
+            if (!summary.metrics.length && !summary.latestImage) {
+                summaryEl.innerHTML = '<div class="empty">אין עדיין נתונים. העלה CSV או תמונת סטטיסטיקה כדי ליצור מבט כולל ברור.</div>';
+            } else {
+                if (summary.metrics.length) {
+                    const grid = document.createElement('div');
+                    grid.className = 'metrics';
+                    summary.metrics.forEach((metric) => {
+                        const card = document.createElement('div');
+                        card.className = 'metric-card';
+                        card.innerHTML = '<div class="metric-label"></div><div class="metric-value"></div><div class="metric-note"></div>';
+                        card.querySelector('.metric-label').textContent = metric.label;
+                        card.querySelector('.metric-value').textContent = metric.value;
+                        card.querySelector('.metric-note').textContent = metric.description;
+                        grid.appendChild(card);
+                    });
+                    summaryEl.appendChild(grid);
+                }
+
+                if (summary.analysis && summary.analysis.length) {
+                    const panel = document.createElement('section');
+                    panel.className = 'analysis-panel';
+                    panel.innerHTML = '<h2 style="font-size:18px">סיכום איכות המדדים והמלצות</h2><div class="analysis-grid"></div>';
+                    const grid = panel.querySelector('.analysis-grid');
+                    summary.analysis.forEach((item) => {
+                        const card = document.createElement('div');
+                        card.className = 'analysis-card';
+                        card.innerHTML = '<h3></h3><div class="analysis-status"></div><div></div>';
+                        card.querySelector('h3').textContent = item.title + ' (' + item.value + ')';
+                        card.querySelector('.analysis-status').textContent = item.status;
+                        const body = card.querySelector('div:last-child');
+                        item.lines.forEach((line) => {
+                            const p = document.createElement('p');
+                            p.textContent = line;
+                            body.appendChild(p);
+                        });
+                        grid.appendChild(card);
+                    });
+                    if (summary.recommendations && summary.recommendations.length) {
+                        const rec = document.createElement('ul');
+                        rec.className = 'recommendations';
+                        summary.recommendations.forEach((line) => {
+                            const li = document.createElement('li');
+                            li.textContent = line;
+                            rec.appendChild(li);
+                        });
+                        panel.appendChild(rec);
+                    }
+                    summaryEl.appendChild(panel);
+                }
+
+                if (summary.latestImage && !summary.metrics.length) {
+                    summaryEl.innerHTML += '<div class="empty" style="margin-top:12px">התמונה עלתה ונשמרה, אבל לא זוהו ממנה מספרים. אפשר להעלות תמונה חדה יותר או להשלים ידנית.</div>';
+                }
+            }
+
+            if (data.entries) renderEntriesTable(data.entries);
+        }
+
+        const FIELD_DEFS = [
+            ['top_speed', 'Top Speed'],
+            ['sprints', 'Sprints'],
+            ['hid', 'HID'],
+            ['very_fast_run', 'Dist>25'],
+            ['fast_run', 'Dist 20-25'],
+            ['distance_per_min', 'Dist/min'],
+            ['total_distance', 'Total Distance'],
+            ['time_value', 'Time'],
+        ];
+
+        function fmtDate(iso) {
+            try { return new Date(iso).toLocaleString('he-IL'); } catch (e) { return iso; }
+        }
+
+        function renderEntriesTable(entries) {
+            entriesTableWrap.innerHTML = '';
+            if (!entries.length) {
+                entriesTableWrap.innerHTML = '<div class="empty">אין עדיין העלאות.</div>';
+                return;
+            }
+            const table = document.createElement('table');
+            table.className = 'entries';
+            const thead = document.createElement('thead');
+            thead.innerHTML =
+                '<tr><th>תאריך</th><th>סוג</th>' +
+                FIELD_DEFS.map(([, label]) => '<th>' + label + '</th>').join('') +
+                '<th></th></tr>';
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+
+            entries.forEach((entry) => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = entry.id;
+
+                const dateTd = document.createElement('td');
+                dateTd.textContent = fmtDate(entry.created_at);
+                tr.appendChild(dateTd);
+
+                const typeTd = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'type-badge ' + entry.type;
+                badge.textContent = entry.type === 'csv' ? 'CSV' : entry.type === 'image' ? 'תמונה' : 'ידני';
+                typeTd.appendChild(badge);
+                tr.appendChild(typeTd);
+
+                FIELD_DEFS.forEach(([key]) => {
+                    const td = document.createElement('td');
+                    td.className = 'num';
+                    td.dataset.field = key;
+                    const value = entry[key];
+                    td.textContent = value === null || value === undefined || value === '' ? '—' : value;
+                    tr.appendChild(td);
+                });
+
+                const actionsTd = document.createElement('td');
+                const actionsWrap = document.createElement('div');
+                actionsWrap.className = 'row-actions';
+
+                if (entry.type === 'image' && entry.image_url) {
+                    const viewBtn = document.createElement('button');
+                    viewBtn.type = 'button';
+                    viewBtn.className = 'secondary small';
+                    viewBtn.textContent = 'צפייה';
+                    viewBtn.addEventListener('click', () => window.open(entry.image_url, '_blank'));
+                    actionsWrap.appendChild(viewBtn);
+                }
+
+                if (entry.type !== 'image') {
+                    const editBtn = document.createElement('button');
+                    editBtn.type = 'button';
+                    editBtn.className = 'secondary small';
+                    editBtn.textContent = 'עריכה';
+                    editBtn.addEventListener('click', () => toggleEditRow(tr, entry));
+                    actionsWrap.appendChild(editBtn);
+                }
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'danger small';
+                delBtn.textContent = 'מחיקה';
+                delBtn.addEventListener('click', () => deleteEntry(entry.id));
+                actionsWrap.appendChild(delBtn);
+
+                actionsTd.appendChild(actionsWrap);
+                tr.appendChild(actionsTd);
+
+                tbody.appendChild(tr);
+            });
+
+            table.appendChild(tbody);
+            entriesTableWrap.appendChild(table);
+        }
+
+        function toggleEditRow(tr, entry) {
+            const isEditing = tr.dataset.editing === '1';
+            if (isEditing) return;
+            tr.dataset.editing = '1';
+
+            const inputs = {};
+            FIELD_DEFS.forEach(([key]) => {
+                const td = tr.querySelector('td[data-field="' + key + '"]');
+                const currentValue = entry[key] === null || entry[key] === undefined ? '' : entry[key];
+                const input = document.createElement('input');
+                input.value = currentValue;
+                input.style.width = '90px';
+                td.textContent = '';
+                td.appendChild(input);
+                inputs[key] = input;
+            });
+
+            const actionsTd = tr.lastElementChild;
+            actionsTd.innerHTML = '';
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'small';
+            saveBtn.textContent = 'שמירה';
+            saveBtn.addEventListener('click', async () => {
+                const values = {
+                    topSpeed: inputs.top_speed.value,
+                    sprints: inputs.sprints.value,
+                    hid: inputs.hid.value,
+                    veryFastRun: inputs.very_fast_run.value,
+                    fastRun: inputs.fast_run.value,
+                    distancePerMin: inputs.distance_per_min.value,
+                    totalDistance: inputs.total_distance.value,
+                    time: inputs.time_value.value,
+                };
+                try {
+                    const result = await api('/api/entries/' + entry.id, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values }),
+                    });
+                    render(result);
+                    setStatus('העדכון נשמר.');
+                } catch (err) {
+                    setStatus(err.message || 'שגיאה בעדכון');
+                }
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'secondary small';
+            cancelBtn.textContent = 'ביטול';
+            cancelBtn.addEventListener('click', () => loadEntries());
+
+            const wrap = document.createElement('div');
+            wrap.className = 'row-actions';
+            wrap.appendChild(saveBtn);
+            wrap.appendChild(cancelBtn);
+            actionsTd.appendChild(wrap);
+        }
+
+        async function deleteEntry(id) {
+            if (!confirm('למחוק העלאה זו?')) return;
+            try {
+                const result = await api('/api/entries/' + id, { method: 'DELETE' });
+                render(result);
+                setStatus('ההעלאה נמחקה.');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה במחיקה');
+            }
+        }
+
+        async function loadEntries() {
+            const result = await api('/api/entries');
+            renderEntriesTable(result.entries || []);
+        }
+
+        async function loadStats() {
+            const [summaryResult, entriesResult] = await Promise.all([
+                api('/api/weekly-stats'),
+                api('/api/entries'),
+            ]);
+            render({ summary: summaryResult.summary, entries: entriesResult.entries });
+        }
+
+        function readAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsText(file, 'utf-8');
+            });
+        }
+
+        function readAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function extractMaimonStatsFromOcr(text) {
+            const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+            const maimonIndex = lines.findIndex((line) => /maimon|מימון/i.test(line));
+            if (maimonIndex === -1) return null;
+
+            function parseStatsFromText(rowText) {
+                const timeMatch = rowText.match(/\b\d{1,2}:\d{2}:\d{2}\b/);
+                const withoutTime = rowText.replace(/\b\d{1,2}:\d{2}:\d{2}\b/g, ' ');
+                const numbers = (withoutTime.match(/\d+(?:[.,]\d+)?/g) || [])
+                    .map((value) => value.replace(',', '.'))
+                    .filter((value) => {
+                        const n = Number(value);
+                        return Number.isFinite(n) && n > 0;
+                    });
+
+                if (numbers.length >= 7) {
+                    const ordered = numbers.slice(0, 7).map(Number);
+                    const looksLikeMaimonRow =
+                        ordered[0] >= 15 && ordered[0] <= 40 &&
+                        Number.isInteger(ordered[1]) && ordered[1] >= 0 && ordered[1] <= 80 &&
+                        ordered[2] >= 0 && ordered[2] <= 3000 &&
+                        ordered[3] >= 0 && ordered[3] <= 1500 &&
+                        ordered[4] >= 0 && ordered[4] <= 3000 &&
+                        ordered[5] >= 40 && ordered[5] <= 180 &&
+                        ordered[6] >= 100 && ordered[6] <= 20000;
+                    if (looksLikeMaimonRow) {
+                        return {
+                            topSpeed: numbers[0], sprints: numbers[1], hid: numbers[2],
+                            veryFastRun: numbers[3], fastRun: numbers[4], distancePerMin: numbers[5],
+                            totalDistance: numbers[6], time: timeMatch ? timeMatch[0] : '',
+                        };
+                    }
+                }
+
+                const available = numbers.map((raw, index) => ({ raw, index, value: Number(raw), isDecimal: raw.includes('.') }));
+
+                function take(predicate, sorter) {
+                    const matches = available.filter(predicate).sort(sorter || ((a, b) => a.index - b.index));
+                    const match = matches[0];
+                    if (!match) return null;
+                    available.splice(available.indexOf(match), 1);
+                    return match;
+                }
+
+                const topSpeed = take(
+                    (item) => item.value >= 20 && item.value <= 40,
+                    (a, b) => Number(b.isDecimal) - Number(a.isDecimal) || Math.abs(a.value - 30) - Math.abs(b.value - 30)
+                );
+                const sprints = take(
+                    (item) => item.value > 0 && item.value <= 60 && Number.isInteger(item.value),
+                    (a, b) => {
+                        if (topSpeed && a.index > topSpeed.index && b.index <= topSpeed.index) return -1;
+                        if (topSpeed && b.index > topSpeed.index && a.index <= topSpeed.index) return 1;
+                        return a.value - b.value;
+                    }
+                );
+                const totalDistance = take((item) => item.value >= 100, (a, b) => b.value - a.value);
+                const distancePerMin = take(
+                    (item) => item.value >= 60 && item.value <= 180,
+                    (a, b) => Math.abs(a.value - 100) - Math.abs(b.value - 100)
+                );
+                const distanceValues = available.filter((item) => item.value > 5).sort((a, b) => b.value - a.value);
+                const hid = distanceValues[0] || null;
+                const fastRun = distanceValues[1] || null;
+                const veryFastRun = distanceValues[2] || null;
+
+                if (!topSpeed && !sprints && !totalDistance && !distancePerMin && !hid) return null;
+                return {
+                    topSpeed: topSpeed ? topSpeed.raw : '',
+                    sprints: sprints ? sprints.raw : '',
+                    hid: hid ? hid.raw : '',
+                    veryFastRun: veryFastRun ? veryFastRun.raw : '',
+                    fastRun: fastRun ? fastRun.raw : '',
+                    distancePerMin: distancePerMin ? distancePerMin.raw : '',
+                    totalDistance: totalDistance ? totalDistance.raw : '',
+                    time: timeMatch ? timeMatch[0] : '',
+                };
+            }
+
+            const candidates = [
+                lines[maimonIndex],
+                [lines[maimonIndex - 1], lines[maimonIndex]].filter(Boolean).join(' '),
+                [lines[maimonIndex], lines[maimonIndex + 1]].filter(Boolean).join(' '),
+            ].filter((candidate, index, all) => candidate && all.indexOf(candidate) === index);
+
+            for (const candidate of candidates) {
+                if (/average|ממוצע/i.test(candidate)) continue;
+                const parsed = parseStatsFromText(candidate);
+                if (parsed) return parsed;
+            }
+            return parseStatsFromText(lines[maimonIndex]);
+        }
+
+        function fillManualForm(values) {
+            const form = document.getElementById('manualForm');
+            Object.entries(values).forEach(([key, value]) => {
+                if (form[key]) form[key].value = value || '';
+            });
+        }
+
+        function isSuspiciousOcr(values) {
+            const num = (key) => Number(String(values[key] || '').replace(',', '.'));
+            const totalDistance = num('totalDistance');
+            const topSpeed = num('topSpeed');
+            const sprints = num('sprints');
+            const hid = num('hid');
+            const fastRun = num('fastRun');
+            const veryFastRun = num('veryFastRun');
+            const distancePerMin = num('distancePerMin');
+            if (!Number.isFinite(totalDistance) || totalDistance < 100 || totalDistance > 20000) return true;
+            if (Number.isFinite(topSpeed) && (topSpeed < 15 || topSpeed > 40)) return true;
+            if (Number.isFinite(sprints) && sprints > 80) return true;
+            if (Number.isFinite(hid) && hid > 3000) return true;
+            if (Number.isFinite(fastRun) && fastRun > 3000) return true;
+            if (Number.isFinite(veryFastRun) && veryFastRun > 1500) return true;
+            if (Number.isFinite(distancePerMin) && (distancePerMin < 40 || distancePerMin > 180)) return true;
+            return false;
+        }
+
+        async function ocrImageStats(dataUrl) {
+            if (!window.Tesseract) throw new Error('OCR library did not load');
+            const result = await Tesseract.recognize(dataUrl, 'eng', {
+                logger: (m) => {
+                    if (m.status === 'recognizing text' && m.progress) {
+                        setStatus('קורא את התמונה... ' + Math.round(m.progress * 100) + '%');
+                    }
+                }
+            });
+            return extractMaimonStatsFromOcr(result.data.text || '');
+        }
+
+        document.getElementById('csvInput').addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            try {
+                const text = await readAsText(file);
+                const summaryResult = await api('/api/weekly-stats/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'csv', fileName: file.name, text })
+                });
+                await loadStats();
+                setStatus('ה-CSV נוסף למבט הכולל.');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה בהעלאת CSV');
+            } finally {
+                e.target.value = '';
+            }
+        });
+
+        document.getElementById('imageInput').addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            try {
+                const dataUrl = await readAsDataUrl(file);
+                const imageResult = await api('/api/weekly-stats/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'image', fileName: file.name, dataUrl })
+                });
+                await loadStats();
+                pendingImageEntryId = imageResult.summary && imageResult.summary.latestImage
+                    ? imageResult.summary.latestImage.id
+                    : null;
+                setStatus('התמונה נשמרה. מנסה לקרוא ממנה את שורת Maimon...');
+                const values = await ocrImageStats(dataUrl);
+                if (!values) {
+                    setStatus('התמונה נשמרה, אבל לא הצלחתי לזהות אוטומטית את שורת Maimon. מלאי את השדות הידניים למטה.');
+                    return;
+                }
+                fillManualForm(values);
+                const reviewText = isSuspiciousOcr(values)
+                    ? 'זיהוי ה-OCR נראה לא בטוח.'
+                    : 'זיהוי ה-OCR מולא בשדות.';
+                setStatus('התמונה נשמרה. ' + reviewText + ' בדקי/תקני את השדות ואז לחצי "הוסף נתונים לסיכום".');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה בהעלאת תמונה');
+            } finally {
+                e.target.value = '';
+            }
+        });
+
+        document.getElementById('manualForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const values = Object.fromEntries(new FormData(e.currentTarget).entries());
+            try {
+                if (!String(values.totalDistance || '').trim()) {
+                    setStatus('חסר Total Distance. הזיני את המרחק מהמשחק האחרון ואז שמרי.');
+                    e.currentTarget.totalDistance.focus();
+                    return;
+                }
+                await api('/api/weekly-stats/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'manual', values, relatedImageId: pendingImageEntryId })
+                });
+                await loadStats();
+                pendingImageEntryId = null;
+                e.currentTarget.reset();
+                setStatus('הנתונים הידניים נוספו למבט הכולל.');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה בהזנה ידנית');
+            }
+        });
+
+        document.getElementById('fillExample').addEventListener('click', () => {
+            const form = document.getElementById('manualForm');
+            form.topSpeed.value = '28.2';
+            form.sprints.value = '4';
+            form.hid.value = '513';
+            form.veryFastRun.value = '47';
+            form.fastRun.value = '431';
+            form.distancePerMin.value = '106';
+            form.totalDistance.value = '11161';
+            form.time.value = '01:45:23';
+            setStatus('מילאתי את דוגמת מימון. לחצי "הוסף נתונים לסיכום" כדי לשמור.');
+        });
+
+        document.getElementById('deleteLatestBtn').addEventListener('click', async () => {
+            if (!confirm('למחוק רק את ההעלאה האחרונה?')) return;
+            try {
+                pendingImageEntryId = null;
+                await api('/api/weekly-stats/latest', { method: 'DELETE' });
+                await loadStats();
+                setStatus('ההעלאה האחרונה נמחקה');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה במחיקת ההעלאה האחרונה');
+            }
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', async () => {
+            if (!confirm('למחוק את כל קבצי הסטטיסטיקה שהועלו?')) return;
+            try {
+                pendingImageEntryId = null;
+                await api('/api/weekly-stats', { method: 'DELETE' });
+                await loadStats();
+                setStatus('הנתונים נוקו');
+            } catch (err) {
+                setStatus(err.message || 'שגיאה בניקוי נתונים');
+            }
+        });
+
+        loadStats().catch((err) => toast(err.message));
+    </script>
+</body>
+</html>
